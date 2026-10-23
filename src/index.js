@@ -1,3 +1,88 @@
+// BEGIN GENERATED LANDING
+const DETAIL_HTML = [
+  "<!doctype html>",
+  "<html lang=\"zh-CN\">",
+  "<head>",
+  "  <meta charset=\"utf-8\">",
+  "  <meta name=\"viewport\" content=\"width=device-width,initial-scale=1,viewport-fit=cover\">",
+  "  <meta name=\"referrer\" content=\"no-referrer\">",
+  "  <meta name=\"color-scheme\" content=\"light\">",
+  "  <title>消息详情 · WXPush</title>",
+  "  <style>",
+  "    :root{font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",\"PingFang SC\",\"Microsoft YaHei\",sans-serif;color:#22272c;background:#f7f8fa;font-synthesis:none;-webkit-font-smoothing:antialiased}",
+  "    *{box-sizing:border-box}body{margin:0}[hidden]{display:none!important}",
+  "    .shell{max-width:680px;margin:0 auto;padding:48px 24px 32px}",
+  "    .brand{display:flex;align-items:center;gap:10px;margin:0 0 28px;font-size:13px;font-weight:600;color:#727983;letter-spacing:.03em}",
+  "    .mark{width:18px;height:18px;display:grid;grid-template-columns:repeat(2,1fr);gap:3px}.mark i{border-radius:2px;background:#303941}.mark i:last-child{background:#adb7bf}",
+  "    article{background:#fff;border:1px solid #e5e8ec;border-radius:16px;padding:34px 34px 28px;box-shadow:0 4px 20px #27344803}",
+  "    h1{font-size:28px;letter-spacing:-.04em;line-height:1.4;margin:0;font-weight:650;overflow-wrap:anywhere}",
+  "    time{display:block;font-size:12px;color:#8b929b;margin-top:10px;line-height:1.6;font-variant-numeric:tabular-nums}",
+  "    .rule{height:1px;background:#edf0f2;margin:26px 0}",
+  "    .message{font-size:15px;line-height:1.95;white-space:pre-wrap;overflow-wrap:anywhere;color:#404952;margin:0}",
+  "    .fields{margin:0;display:grid;gap:0}.field{display:grid;grid-template-columns:minmax(0,1fr);gap:4px;padding:14px 0;border-bottom:1px solid #f0f2f4}.field:last-child{border:0;padding-bottom:0}.field:first-child{padding-top:0}dt{font-size:12px;color:#818994;overflow-wrap:anywhere;line-height:1.6}dd{margin:0;font-size:15px;line-height:1.8;color:#3b444e;white-space:pre-wrap;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}",
+  "    @media(max-width:480px){.shell{padding:28px 18px 24px}.brand{margin-bottom:20px}article{padding:26px 24px 23px;border-radius:13px}h1{font-size:26px}.rule{margin:23px 0}.message{font-size:15px;line-height:1.95}}",
+  "  </style>",
+  "</head>",
+  "<body>",
+  "  <main class=\"shell\">",
+  "    <div class=\"brand\"><span class=\"mark\" aria-hidden=\"true\"><i></i><i></i><i></i><i></i></span><span>WXPUSH <span style=\"font-weight:400;color:#a0a7af\">/ 消息详情</span></span></div>",
+  "    <article aria-labelledby=\"heading\">",
+  "      <h1 id=\"heading\">消息详情</h1>",
+  "      <time id=\"date\" hidden></time>",
+  "      <div class=\"rule\"></div>",
+  "      <section id=\"message-section\"><p class=\"message\" id=\"message\">请从通知消息打开此页面。</p></section>",
+  "      <section id=\"extra-section\" hidden><dl class=\"fields\" id=\"fields\"></dl></section>",
+  "    </article>",
+  "  </main>",
+  "  <script>",
+  "    (() => {",
+  "      function render() {",
+  "        const params = new URLSearchParams(location.search);",
+  "        const fragment = new URLSearchParams(location.hash.slice(1));",
+  "        const isObject = value => value && typeof value === 'object' && !Array.isArray(value);",
+  "        function parse(raw) {try {const value=JSON.parse(raw);return isObject(value)?value:{};} catch {return {};}}",
+  "        const text = value => {if(isObject(value)) value=value.value;return ['string','number','boolean'].includes(typeof value)?String(value):'';};",
+  "        const envelope = parse(fragment.get('data') || params.get('data') || '{}');",
+  "        // Only transport metadata is interpreted. Template fields have no reserved roles.",
+  "        const meta = key => Object.hasOwn(envelope,key)?text(envelope[key]):(params.get(key)||'');",
+  "        const candidate = envelope.template_data || envelope.data || parse(params.get('template_data') || '{}');",
+  "        const fields = isObject(candidate)?candidate:{};",
+  "        const entries = Object.entries(fields).map(([key,value])=>[key,text(value)]);",
+  "        const title=meta('title') || '消息详情',date=meta('date');",
+  "        let content=meta('content');",
+  "        if(!entries.length){",
+  "          // Old links carried the outer content under ?message=.",
+  "          if(!content) content=meta('message');",
+  "          const metadata=new Set(['title','date','content','message','data','template_data','token','access_token','api_token','api_key','secret','template_id','appid','userid','base_url']);",
+  "          for(const [key,value] of params){if(!metadata.has(key.toLowerCase()))entries.push([key,value]);}",
+  "        }",
+  "        document.title=title+' · WXPush';",
+  "        document.getElementById('heading').textContent=title;",
+  "        document.getElementById('date').hidden=!date;",
+  "        document.getElementById('date').textContent=date;",
+  "        const list=document.getElementById('fields');list.replaceChildren();",
+  "        const showFields=!content && entries.length>0;",
+  "        document.getElementById('extra-section').hidden=!showFields;",
+  "        document.getElementById('message-section').hidden=showFields;",
+  "        document.getElementById('message').textContent=content || '请从通知消息打开此页面。';",
+  "        if(showFields){",
+  "          for(const [key,value] of entries){",
+  "            const row=document.createElement('div');row.className='field';",
+  "            const dt=document.createElement('dt'),dd=document.createElement('dd');",
+  "            dt.textContent=key;dd.textContent=value;row.append(dt,dd);list.append(row);",
+  "          }",
+  "        }",
+  "      }",
+  "      render();",
+  "      window.addEventListener('hashchange',render);",
+  "    })();",
+  "  </script>",
+  "</body>",
+  "</html>",
+  ""
+].join("\n");
+// END GENERATED LANDING
+
 // Preserve legacy {data:{title,content}} wrappers while accepting WeChat-shaped
 // {template_id,data:{event,message}} requests without discarding their envelope.
 function hasEnvelopeFields(value) {
@@ -91,395 +176,7 @@ export default {
     const url = new URL(request.url);
 
     if (url.pathname.includes('/skin')) {
-      const html = `<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>消息推送</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
-        }
-
-        body {
-            background: linear-gradient(135deg, #0c0c2e 0%, #1a1a3e 100%);
-            color: #e0f7fa;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            overflow-x: hidden;
-            position: relative;
-        }
-
-        /* 动态背景效果 */
-        body::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background:
-                radial-gradient(circle at 20% 30%, rgba(0, 150, 136, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 80% 70%, rgba(0, 188, 212, 0.15) 0%, transparent 50%);
-            z-index: -1;
-        }
-
-        .container {
-            max-width: 800px;
-            width: 100%;
-            background: rgba(18, 18, 40, 0.85);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            padding: 40px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5),
-                        0 0 0 1px rgba(0, 150, 136, 0.2),
-                        0 0 20px rgba(0, 188, 212, 0.3);
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .container:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6),
-                        0 0 0 1px rgba(0, 150, 136, 0.4),
-                        0 0 30px rgba(0, 188, 212, 0.5);
-        }
-
-        .container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: linear-gradient(90deg, #00bcd4, #009688);
-        }
-
-        .title {
-            text-align: center;
-            margin-bottom: 40px;
-            font-size: 2.2rem;
-            font-weight: 300;
-            letter-spacing: 2px;
-            color: #00bcd4;
-            position: relative;
-            padding-bottom: 15px;
-        }
-
-        .title::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100px;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, #00bcd4, transparent);
-        }
-
-        .info-card {
-            background: rgba(30, 30, 60, 0.7);
-            border-radius: 12px;
-            padding: 25px;
-            margin-bottom: 25px;
-            border-left: 4px solid #00bcd4;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .info-card:hover {
-            transform: translateX(5px);
-            background: rgba(40, 40, 70, 0.8);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-        }
-
-        .info-label {
-            font-size: 1.3rem;
-            color: #80deea;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-        }
-
-        .info-label::before {
-            content: '';
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #00bcd4;
-            margin-right: 10px;
-        }
-
-        .info-content {
-            font-size: 1.2rem;
-            color: #e0f7fa;
-            font-weight: 500;
-            word-break: break-word;
-            line-height: 1.6;
-            white-space: pre-line;
-        }
-
-        .pulse {
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(0, 188, 212, 0.4);
-            }
-            70% {
-                box-shadow: 0 0 0 10px rgba(0, 188, 212, 0);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(0, 188, 212, 0);
-            }
-        }
-
-        /* Markdown 样式覆盖 */
-        .info-content h1, .info-content h2, .info-content h3, .info-content h4, .info-content h5, .info-content h6 {
-            color: #00bcd4;
-            margin-top: 1em;
-            margin-bottom: 0.5em;
-            font-weight: 400;
-        }
-        .info-content p {
-            margin-bottom: 1em;
-            line-height: 1.6;
-        }
-        .info-content strong {
-            color: #e0f7fa;
-            font-weight: 600;
-        }
-        .info-content em {
-            color: #80deea;
-            font-style: italic;
-        }
-        .info-content code {
-            background: rgba(0, 0, 0, 0.3);
-            color: #00bcd4;
-            padding: 2px 4px;
-            border-radius: 4px;
-            font-family: 'Courier New', monospace;
-        }
-        .info-content pre {
-            background: rgba(0, 0, 0, 0.4);
-            color: #e0f7fa;
-            padding: 1em;
-            border-radius: 8px;
-            overflow-x: auto;
-            margin-bottom: 1em;
-        }
-        .info-content blockquote {
-            border-left: 4px solid #009688;
-            margin: 1em 0;
-            padding-left: 1em;
-            color: #80deea;
-            font-style: italic;
-        }
-        .info-content ul, .info-content ol {
-            margin-bottom: 1em;
-            padding-left: 2em;
-        }
-        .info-content li {
-            margin-bottom: 0.5em;
-        }
-        .info-content a {
-            color: #00bcd4;
-            text-decoration: none;
-        }
-        .info-content a:hover {
-            text-decoration: underline;
-        }
-        .info-content table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 1em;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        .info-content th, .info-content td {
-            padding: 0.75em;
-            text-align: left;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .info-content th {
-            background: rgba(0, 188, 212, 0.2);
-            color: #00bcd4;
-        }
-
-        /* 响应式设计 */
-        @media (max-width: 768px) {
-            .container {
-                padding: 25px;
-            }
-
-            .title {
-                font-size: 1.9rem;
-            }
-
-            .info-content {
-                font-size: 1.1rem;
-            }
-
-            .info-label {
-                font-size: 1.2rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .container {
-                padding: 20px;
-            }
-
-            .title {
-                font-size: 1.6rem;
-            }
-
-            .info-content {
-                font-size: 1rem;
-            }
-
-            .info-card {
-                padding: 20px;
-            }
-
-            .info-label {
-                font-size: 1.1rem;
-            }
-        }
-
-        /* 动态粒子背景 */
-        .particles {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            overflow: hidden;
-        }
-
-        .particle {
-            position: absolute;
-            background: rgba(0, 188, 212, 0.3);
-            border-radius: 50%;
-            animation: float 15s infinite linear;
-        }
-
-        @keyframes float {
-            0% {
-                transform: translateY(0) translateX(0);
-                opacity: 0;
-            }
-            10% {
-                opacity: 1;
-            }
-            90% {
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(-100vh) translateX(100px);
-                opacity: 0;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="particles" id="particles"></div>
-
-    <div class="container pulse">
-        <div class="title" id="title">消息推送</div>
-
-        <div class="info-card">
-            <div class="info-label">通知内容</div>
-            <div class="info-content" id="message">无告警信息</div>
-        </div>
-
-        <div class="info-card">
-            <div class="info-label">时间</div>
-            <div class="info-content" id="date">无时间信息</div>
-        </div>
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js"></script>
-    <script>
-        // 从 URL 参数读取数据
-        function getUrlParams() {
-            const urlParams = new URLSearchParams(window.location.search);
-            return {
-                title: urlParams.get('title') || '消息推送',
-                message: urlParams.get('message') || '无告警信息',
-                date: urlParams.get('date') || '无时间信息'
-            };
-        }
-
-        // 创建动态粒子背景
-        function createParticles() {
-            const particlesContainer = document.getElementById('particles');
-            const particleCount = 25;
-            const colors = [
-                'rgba(0, 188, 212, 0.2)',
-                'rgba(0, 150, 136, 0.2)',
-                'rgba(77, 182, 172, 0.15)'
-            ];
-
-            for (let i = 0; i < particleCount; i++) {
-                const particle = document.createElement('div');
-                particle.classList.add('particle');
-
-                const size = Math.random() * 3 + 1;
-                particle.style.width = size + 'px';
-                particle.style.height = size + 'px';
-
-                const randomColor = colors[Math.floor(Math.random() * colors.length)];
-                particle.style.background = randomColor;
-
-                particle.style.left = (Math.random() * 100) + '%';
-                particle.style.top = (Math.random() * 100) + '%';
-
-                particle.style.animationDelay = (Math.random() * 20) + 's';
-                particle.style.animationDuration = (20 + Math.random() * 15) + 's';
-
-                particlesContainer.appendChild(particle);
-            }
-        }
-
-        // 处理 Markdown 渲染
-        function renderMarkdown() {
-            const messageEl = document.getElementById('message');
-            if (messageEl && typeof marked !== 'undefined') {
-                const markdownText = messageEl.textContent || messageEl.innerText;
-                messageEl.innerHTML = marked.parse(markdownText);
-            }
-        }
-
-        // 填充页面内容
-        function fillContent() {
-            const params = getUrlParams();
-            document.getElementById('title').textContent = params.title;
-            document.getElementById('message').textContent = params.message;
-            document.getElementById('date').textContent = params.date;
-            renderMarkdown(); // 渲染 Markdown
-        }
-
-        // 页面加载时调用
-        window.onload = function() {
-            createParticles();
-            fillContent();
-        };
-    </script>
-</body>
-</html>`;
-      return new Response(html, { headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+      return new Response(DETAIL_HTML, { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Referrer-Policy':'no-referrer' } });
     }
     // If path is a single segment like '/<token>', serve an interactive test page
     // but ignore reserved paths like '/wxsend' and '/index.html'
@@ -759,14 +456,21 @@ export default {
           status: 400, headers: { 'Content-Type': 'application/json; charset=utf-8' },
         });
       }
-      title = title || templateData?.event?.value || '模板消息';
-      content = content || templateData?.message?.value || JSON.stringify(templateData);
+      const detailContent = params.content;
+      title = title || '模板消息';
+      content = content || JSON.stringify(templateData);
 
       const appid = params.appid || env.WX_APPID;
       const secret = params.secret || env.WX_SECRET;
       const useridStr = params.userid || env.WX_USERID;
       const template_id = params.template_id || env.WX_TEMPLATE_ID;
-      const base_url = params.base_url || env.WX_BASE_URL;
+      const base_url = params.base_url || env.WX_BASE_URL || new URL('/skin',request.url).toString();
+      try {
+        const detail = new URL(base_url);
+        if (!['http:','https:'].includes(detail.protocol) || detail.username || detail.password) throw new Error();
+      } catch {
+        return Response.json({msg:'Invalid detail base_url: expected an absolute HTTP(S) URL'}, {status:400});
+      }
 
       if (!appid || !secret || !useridStr || !template_id) {
           const responseBody = { msg: 'Missing required environment variables: WX_APPID, WX_SECRET, WX_USERID, WX_TEMPLATE_ID' };
@@ -789,7 +493,7 @@ export default {
         }
 
         const results = await Promise.all(user_list.map(userid =>
-          sendMessage(accessToken, userid, template_id, base_url, title, content, templateData)
+          sendMessage(accessToken, userid, template_id, base_url, title, content, templateData, detailContent)
         ));
 
         const successfulMessages = results.filter(r => r.errmsg === 'ok');
@@ -1008,7 +712,7 @@ async function getStableToken(appid, secret) {
   return data.access_token;
 }
 
-async function sendMessage(accessToken, userid, template_id, base_url, title, content, templateData) {
+async function sendMessage(accessToken, userid, template_id, base_url, title, content, templateData, detailContent) {
   const sendUrl = `https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=${accessToken}`;
 
   // Create a Date object for Beijing time (UTC+8) by adding 8 hours to the current UTC time
@@ -1020,10 +724,22 @@ async function sendMessage(accessToken, userid, template_id, base_url, title, co
   const encoded_date = encodeURIComponent(date);
 
   const separator = base_url?.includes('?') ? '&' : '?';
+  let detailUrl = base_url ? `${base_url}${separator}message=${encoded_message}&date=${encoded_date}&title=${encodeURIComponent(title)}` : undefined;
+  if (templateData) {
+    try {
+      const target = new URL(base_url);
+      if (target.protocol === 'https:' || target.protocol === 'http:') {
+        const detail = {title,date,template_data:templateData};
+        if (['string','number','boolean'].includes(typeof detailContent)) detail.content=String(detailContent);
+        target.hash = new URLSearchParams({data:JSON.stringify(detail)}).toString();
+        detailUrl = target.toString();
+      }
+    } catch { /* Retain legacy behavior for an unconfigured detail URL. */ }
+  }
   const payload = {
     touser: userid,
     template_id: template_id,
-    url: `${base_url}${separator}message=${encoded_message}&date=${encoded_date}&title=${encodeURIComponent(title)}`,
+    url: detailUrl,
     data: templateData || {
       title: { value: title },
       content: { value: content }
