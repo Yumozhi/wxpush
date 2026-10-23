@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="referrer" content="no-referrer">
+  <meta name="color-scheme" content="light">
+  <title>消息详情 · WXPush</title>
+  <style>
+    :root{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;color:#22272c;background:#f7f8fa;font-synthesis:none;-webkit-font-smoothing:antialiased}
+    *{box-sizing:border-box}body{margin:0}[hidden]{display:none!important}
+    .shell{max-width:680px;margin:0 auto;padding:48px 24px 32px}
+    .brand{display:flex;align-items:center;gap:10px;margin:0 0 28px;font-size:13px;font-weight:600;color:#727983;letter-spacing:.03em}
+    .mark{width:18px;height:18px;display:grid;grid-template-columns:repeat(2,1fr);gap:3px}.mark i{border-radius:2px;background:#303941}.mark i:last-child{background:#adb7bf}
+    article{background:#fff;border:1px solid #e5e8ec;border-radius:16px;padding:34px 34px 28px;box-shadow:0 4px 20px #27344803}
+    h1{font-size:28px;letter-spacing:-.04em;line-height:1.4;margin:0;font-weight:650;overflow-wrap:anywhere}
+    time{display:block;font-size:12px;color:#8b929b;margin-top:10px;line-height:1.6;font-variant-numeric:tabular-nums}
+    .rule{height:1px;background:#edf0f2;margin:26px 0}
+    .message{font-size:15px;line-height:1.95;white-space:pre-wrap;overflow-wrap:anywhere;color:#404952;margin:0}
+    .fields{margin:0;display:grid;gap:0}.field{display:grid;grid-template-columns:minmax(0,1fr);gap:4px;padding:14px 0;border-bottom:1px solid #f0f2f4}.field:last-child{border:0;padding-bottom:0}.field:first-child{padding-top:0}dt{font-size:12px;color:#818994;overflow-wrap:anywhere;line-height:1.6}dd{margin:0;font-size:15px;line-height:1.8;color:#3b444e;white-space:pre-wrap;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+    @media(max-width:480px){.shell{padding:28px 18px 24px}.brand{margin-bottom:20px}article{padding:26px 24px 23px;border-radius:13px}h1{font-size:26px}.rule{margin:23px 0}.message{font-size:15px;line-height:1.95}}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <div class="brand"><span class="mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>WXPUSH <span style="font-weight:400;color:#a0a7af">/ 消息详情</span></span></div>
+    <article aria-labelledby="heading">
+      <h1 id="heading">消息详情</h1>
+      <time id="date" hidden></time>
+      <div class="rule"></div>
+      <section id="message-section"><p class="message" id="message">请从通知消息打开此页面。</p></section>
+      <section id="extra-section" hidden><dl class="fields" id="fields"></dl></section>
+    </article>
+  </main>
+  <script>
+    (() => {
+      function render() {
+        const params = new URLSearchParams(location.search);
+        const fragment = new URLSearchParams(location.hash.slice(1));
+        const isObject = value => value && typeof value === 'object' && !Array.isArray(value);
+        function parse(raw) {try {const value=JSON.parse(raw);return isObject(value)?value:{};} catch {return {};}}
+        const text = value => {if(isObject(value)) value=value.value;return ['string','number','boolean'].includes(typeof value)?String(value):'';};
+        const envelope = parse(fragment.get('data') || params.get('data') || '{}');
+        // Only transport metadata is interpreted. Template fields have no reserved roles.
+        const meta = key => Object.hasOwn(envelope,key)?text(envelope[key]):(params.get(key)||'');
+        const candidate = envelope.template_data || envelope.data || parse(params.get('template_data') || '{}');
+        const fields = isObject(candidate)?candidate:{};
+        const entries = Object.entries(fields).map(([key,value])=>[key,text(value)]);
+        const title=meta('title') || '消息详情',date=meta('date');
+        let content=meta('content');
+        if(!entries.length){
+          // Old links carried the outer content under ?message=.
+          if(!content) content=meta('message');
+          const metadata=new Set(['title','date','content','message','data','template_data','token','access_token','api_token','api_key','secret','template_id','appid','userid','base_url']);
+          for(const [key,value] of params){if(!metadata.has(key.toLowerCase()))entries.push([key,value]);}
+        }
+        document.title=title+' · WXPush';
+        document.getElementById('heading').textContent=title;
+        document.getElementById('date').hidden=!date;
+        document.getElementById('date').textContent=date;
+        const list=document.getElementById('fields');list.replaceChildren();
+        const showFields=!content && entries.length>0;
+        document.getElementById('extra-section').hidden=!showFields;
+        document.getElementById('message-section').hidden=showFields;
+        document.getElementById('message').textContent=content || '请从通知消息打开此页面。';
+        if(showFields){
+          for(const [key,value] of entries){
+            const row=document.createElement('div');row.className='field';
+            const dt=document.createElement('dt'),dd=document.createElement('dd');
+            dt.textContent=key;dd.textContent=value;row.append(dt,dd);list.append(row);
+          }
+        }
+      }
+      render();
+      window.addEventListener('hashchange',render);
+    })();
+  </script>
+</body>
+</html>
