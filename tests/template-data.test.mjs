@@ -60,3 +60,32 @@ test('partial recipient failure keeps existing status/message but exposes counts
  assert.equal(r.status,200);assert.ok(r.response.msg.startsWith('Successfully sent messages to 1'));
  assert.equal(r.response.successful,1);assert.equal(r.response.failed,1);
 });
+test('custom detail link carries every template field in fragment and retains base URL routing',async()=>{
+ const fields={strategy:'UTC0 Short',event:'执行结果',message:'PnL +1.23 USDT',任意参数:0,flag:false};
+ const r=await send({template_id:'new',template_data:fields,base_url:'https://static.example.test/detail/index.html?lang=zh'});
+ const target=new URL(r.sent[0].url);
+ assert.equal(target.origin,'https://static.example.test');assert.equal(target.pathname,'/detail/index.html');
+ assert.equal(target.searchParams.get('lang'),'zh');assert.equal(target.searchParams.has('message'),false);
+ const detail=JSON.parse(new URLSearchParams(target.hash.slice(1)).get('data'));
+ assert.deepEqual(detail.template_data,r.sent[0].data);assert.equal(detail.template_data['任意参数'].value,'0');
+ assert.ok(detail.date);assert.equal(detail.title,'模板消息');assert.equal(Object.hasOwn(detail,'content'),false);
+});
+
+test('explicit content is preserved for detail display independently of custom card fields',async()=>{
+ const r=await send({title:'result',content:'full body',template_data:{message:'short card',strategy:'any'}});
+ const detail=JSON.parse(new URLSearchParams(new URL(r.sent[0].url).hash.slice(1)).get('data'));
+ assert.equal(detail.content,'full body');assert.equal(detail.template_data.message.value,'short card');
+});
+
+test('missing Worker base URL defaults to its own skin instead of an undefined link',async()=>{
+ const r=await send({title:'UTC0 result',template_data:{strategy:'UTC0 Short',message:'ok'}},{env:{WX_BASE_URL:undefined}});
+ assert.equal(r.status,200);const target=new URL(r.sent[0].url);
+ assert.equal(target.origin,'https://worker.test');assert.equal(target.pathname,'/skin');
+});
+test('invalid explicit detail URLs fail before sending, while polytope explicit links stay authoritative',async()=>{
+ for(const base_url of ['undefined','javascript:alert(1)','https://user:pass@example.test']){
+  const r=await send({title:'title',content:'content',base_url});assert.equal(r.status,400);assert.equal(r.sent.length,0);
+ }
+ const r=await send({title:'polytope',content:'body',base_url:'https://polytope.example.test/skin'},{env:{WX_BASE_URL:undefined}});
+ assert.equal(new URL(r.sent[0].url).origin,'https://polytope.example.test');
+});
