@@ -1,1 +1,10 @@
-{"name":"wxpush","private":true,"type":"module","scripts":{"test":"node --test tests/*.test.mjs"}}
+{
+  "name": "wxpush",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "build:landing": "node scripts/build-landing.mjs",
+    "preview": "python3 -m http.server 8391 --bind 127.0.0.1"
+  }
+}
