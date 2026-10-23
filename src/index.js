@@ -1,3 +1,29 @@
+// Preserve legacy {data:{title,content}} wrappers while accepting WeChat-shaped
+// {template_id,data:{event,message}} requests without discarding their envelope.
+function hasEnvelopeFields(value) {
+  return ['title', 'content', 'template_id', 'template_data', 'token'].some(key => Object.hasOwn(value, key));
+}
+
+function normalizeTemplateData(raw) {
+  if (raw === undefined) return undefined;
+  if (typeof raw === 'string') raw = JSON.parse(raw);
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw) || !Object.keys(raw).length) throw new Error('invalid template data');
+  const result = Object.create(null);
+  for (const [key, field] of Object.entries(raw)) {
+    if (!key || ['__proto__', 'constructor', 'prototype'].includes(key)) throw new Error('invalid field');
+    let value = field;
+    let color;
+    if (field && typeof field === 'object' && !Array.isArray(field)) {
+      value = field.value;
+      color = field.color;
+    }
+    if (!['string', 'number', 'boolean'].includes(typeof value) || (typeof value === 'number' && !Number.isFinite(value))) throw new Error('invalid value');
+    if (color !== undefined && (typeof color !== 'string' || !/^#[0-9a-f]{6}$/i.test(color))) throw new Error('invalid color');
+    result[key] = { value: String(value), ...(color === undefined ? {} : { color }) };
+  }
+  return result;
+}
+
 // NEW: Helper function to extract parameters from any request type
 async function getParams(request) {
   const { searchParams } = new URL(request.url);
@@ -18,7 +44,7 @@ async function getParams(request) {
           // support nested containers like { params: {...} } or { data: {...} }
           if (jsonBody.params && typeof jsonBody.params === 'object') {
             bodyParams = jsonBody.params;
-          } else if (jsonBody.data && typeof jsonBody.data === 'object') {
+          } else if (jsonBody.data && typeof jsonBody.data === 'object' && !hasEnvelopeFields(jsonBody)) {
             bodyParams = jsonBody.data;
           } else {
             bodyParams = jsonBody;
@@ -36,7 +62,7 @@ async function getParams(request) {
             if (parsed && typeof parsed === 'object') {
               if (parsed.params && typeof parsed.params === 'object') {
                 bodyParams = parsed.params;
-              } else if (parsed.data && typeof parsed.data === 'object') {
+              } else if (parsed.data && typeof parsed.data === 'object' && !hasEnvelopeFields(parsed)) {
                 bodyParams = parsed.data;
               } else {
                 bodyParams = parsed;
@@ -696,8 +722,8 @@ export default {
       const params = await getParams(request);
 
       // MODIFIED: Read parameters from the unified 'params' object
-      const content = params.content;
-      const title = params.title;
+      let content = params.content;
+      let title = params.title;
       // token can come from body/url params or from Authorization header
       let requestToken = params.token;
       if (!requestToken) {
@@ -709,7 +735,7 @@ export default {
         }
       }
 
-      if (!content || !title || !requestToken) {
+      if (!requestToken || ((!content || !title) && params.template_data === undefined && params.data === undefined)) {
         const responseBody = { msg: 'Missing required parameters: content, title, token' };
         return new Response(JSON.stringify(responseBody), {
           status: 400,
@@ -724,6 +750,17 @@ export default {
           headers: { 'Content-Type': 'application/json; charset=utf-8' },
         });
       }
+
+      let templateData;
+      try {
+        templateData = normalizeTemplateData(params.template_data !== undefined ? params.template_data : params.data);
+      } catch {
+        return new Response(JSON.stringify({ msg: 'Invalid template_data: expected nonempty named scalar values or {value,color} fields' }), {
+          status: 400, headers: { 'Content-Type': 'application/json; charset=utf-8' },
+        });
+      }
+      title = title || templateData?.event?.value || '模板消息';
+      content = content || templateData?.message?.value || JSON.stringify(templateData);
 
       const appid = params.appid || env.WX_APPID;
       const secret = params.secret || env.WX_SECRET;
@@ -752,13 +789,13 @@ export default {
         }
 
         const results = await Promise.all(user_list.map(userid =>
-          sendMessage(accessToken, userid, template_id, base_url, title, content)
+          sendMessage(accessToken, userid, template_id, base_url, title, content, templateData)
         ));
 
         const successfulMessages = results.filter(r => r.errmsg === 'ok');
 
         if (successfulMessages.length > 0) {
-          const responseBody = { msg: `Successfully sent messages to ${successfulMessages.length} user(s). First response: ok` };
+          const responseBody = { msg: `Successfully sent messages to ${successfulMessages.length} user(s). First response: ok`, successful: successfulMessages.length, failed: results.length - successfulMessages.length };
           return new Response(JSON.stringify(responseBody), {
             status: 200,
             headers: { 'Content-Type': 'application/json; charset=utf-8' },
@@ -971,7 +1008,7 @@ async function getStableToken(appid, secret) {
   return data.access_token;
 }
 
-async function sendMessage(accessToken, userid, template_id, base_url, title, content) {
+async function sendMessage(accessToken, userid, template_id, base_url, title, content, templateData) {
   const sendUrl = `https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=${accessToken}`;
 
   // Create a Date object for Beijing time (UTC+8) by adding 8 hours to the current UTC time
@@ -987,7 +1024,7 @@ async function sendMessage(accessToken, userid, template_id, base_url, title, co
     touser: userid,
     template_id: template_id,
     url: `${base_url}${separator}message=${encoded_message}&date=${encoded_date}&title=${encodeURIComponent(title)}`,
-    data: {
+    data: templateData || {
       title: { value: title },
       content: { value: content }
     }
