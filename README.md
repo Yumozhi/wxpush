@@ -271,3 +271,27 @@ curl -X POST \
 ## 📜 许可证
 
 本项目采用 [MIT License](LICENSE) 开源许可证。
+
+## 自定义模板字段（兼容现有 title/content）
+
+`template_id` 仍可按请求覆盖默认模板。新增可选 `template_data`，直接指定模板中的任意变量；值可为字符串、数字、布尔值，或微信格式的 `{ "value": "内容", "color": "#00ff00" }`。未传自定义字段时，原有 `title/content`、默认模板、接收人、详情链接、认证方式和保活任务保持原行为。
+
+```json
+{
+  "title": "UTC0 止损生效",
+  "content": "ADAUSDT 已建立交易所侧止损",
+  "template_id": "你的模板ID",
+  "template_data": {
+    "event": { "value": "UTC0 止损生效" },
+    "message": { "value": "ADAUSDT 已建立交易所侧止损" }
+  }
+}
+```
+
+对 `/wxsend` 发起 POST，使用原来的 `Authorization: Bearer <token>`。`title/content` 在自定义模式可省略；也支持微信式 `{ "template_id": "...", "data": { "event": "...", "message": "..." } }`。原来的 `{ "data": { "title": "...", "content": "..." } }` 包装请求继续可用。
+
+GET 或表单请求可将 `template_data` 传为 JSON 字符串；不建议把 Token 放在 URL，优先使用认证请求头。非法或空字段对象会在向微信发送前返回 400，不能覆盖 `touser`、模板、应用凭据等服务端参数。
+
+成功响应保留原来的 `msg`，新增 `successful` 和 `failed` 接收人计数。原有调用可继续检查 HTTP 状态；需要确认所有接收人均成功的调用应额外检查 `failed === 0`。推送接口回执并不代表用户已经阅读消息。
+
+无需安装依赖，使用 Node.js 运行 `node --test tests/*.test.mjs` 验证新模板、旧调用、嵌套包装、认证、非法参数和部分接收人失败。
