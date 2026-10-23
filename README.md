@@ -295,3 +295,22 @@ GET 或表单请求可将 `template_data` 传为 JSON 字符串；不建议把 T
 成功响应保留原来的 `msg`，新增 `successful` 和 `failed` 接收人计数。原有调用可继续检查 HTTP 状态；需要确认所有接收人均成功的调用应额外检查 `failed === 0`。推送接口回执并不代表用户已经阅读消息。
 
 无需安装依赖，使用 Node.js 运行 `node --test tests/*.test.mjs` 验证新模板、旧调用、嵌套包装、认证、非法参数和部分接收人失败。
+
+
+## 简洁消息详情页
+
+`/skin` 使用内置、无外部依赖的页面，源码为 `src/landing/index.html`。修改后运行
+`npm run build:landing` 将页面嵌入 Worker，再运行 `npm test`。`npm run preview`
+可在本机打开 `http://127.0.0.1:8391/preview/` 查看模拟示例。
+
+- 请求中的 `base_url` 优先，其次是 Worker 的 `WX_BASE_URL`；均未配置时使用当前 Worker 的 `/skin`。
+- 要独立迁移详情页，调用方省略 `base_url`，将同一 HTML 托管至新地址后修改 `WX_BASE_URL`。
+- 显式的外层 `content` 有内容时只展示正文；否则逐项显示全部 `template_data`，不推断或特别处理字段名。
+- `title` 和 `date` 作为外层页面元数据；模板内的同名字段仍然按普通字段显示。
+- 自定义字段通过 URL fragment 中的 `data` JSON 传入；旧版 `?title=&message=&date=` 链接继续可用。
+- 桌面和手机统一采用 label 在上、内容在下的布局，内容占满整行。
+- 页面使用纯文本输出，不执行模板内容中的 HTML，也不依赖远程 Markdown 库。
+- 单文件 HTML 可以放在其他静态托管平台，主机需支持 HTTPS 和保留 URL fragment。
+
+部署已有 Worker 时保留控制台变量、Secret、路由及 Cron。仓库中的示例 Worker 名为 `wxpush`；
+部署到已有实例应明确使用实例的实际名称，不能直接覆盖生产配置。
